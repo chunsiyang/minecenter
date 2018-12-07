@@ -1,0 +1,42 @@
+server:
+    port: 8090
+
+spring:
+  datasource:
+    druid:
+      name: devplat
+      url: jdbc:mysql://yourIp/yourDataBase?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+      username: yourUserName
+      password: yourPassWord
+      driver-class-name: com.mysql.jdbc.Driver
+      filters: stat
+      max-active: 20
+      initial-size: 1
+      max-wait: 60000
+      min-idle: 1
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: select 'x'
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+
+
+mybatis:
+  mapper-locations: classpath:src/main/resources/mapping/*.xml
+  type-aliases-package: com.mineserver.home.page.model
+
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+mapper:
+    not-empty: true
+
+logging:
+  level.com.mineserver.home.page.mapper: debug
