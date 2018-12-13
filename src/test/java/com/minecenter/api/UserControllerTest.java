@@ -57,13 +57,13 @@ public class UserControllerTest {
     }
 
     /**
-     * 当提供正确用户名错误密码时返回200状态
+     * 当提供正确用户名错误密码时抛出
      *
      * @author : chunsiyang
      * @date : 2018年12月05日 下午 06:27:59
      */
     @Test
-    public void shouldReturn200WhenGiveLoginWithRightNameErrPasswd() throws Exception {
+    public void shouldThrowNSEWhenGiveLoginWithRightNameErrPasswd() throws Exception {
         try {
             mvc.perform(MockMvcRequestBuilders.post("/user/login")
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -81,13 +81,13 @@ public class UserControllerTest {
     }
 
     /**
-     * 当提供错误用户名错误密码时返回200状态
+     * 当提供错误用户名错误密码时抛出NestedServletException异常
      *
      * @author : chunsiyang
      * @date : 2018年12月05日 下午 06:27:59
      */
     @Test
-    public void shouldReturn200WhenGiveLoginWithErrNamePasswd() throws Exception {
+    public void shouldThrowNSEWhenGiveLoginWithErrNamePasswd() throws Exception {
         try {
             mvc.perform(MockMvcRequestBuilders.post("/user/login")
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
