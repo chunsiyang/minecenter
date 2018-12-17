@@ -3,13 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.mineserver</groupId>
-    <artifactId>home_page</artifactId>
+    <groupId>com.mineCenter</groupId>
+    <artifactId>mineCenter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>home_page</name>
-    <description>a home page for mineserver</description>
+    <name>mineCenter</name>
+    <description>a center page for mineserver</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
