@@ -5,10 +5,12 @@ import com.minecenter.config.shiro.jwt.JwtToken;
 import com.minecenter.mapper.PermissionMapper;
 import com.minecenter.mapper.RoleMapper;
 import com.minecenter.mapper.UserMapper;
+import com.minecenter.model.common.RedisKeyEnum;
 import com.minecenter.model.entry.Permission;
 import com.minecenter.model.entry.Role;
 import com.minecenter.model.entry.User;
 import com.minecenter.util.JwtUtil;
+import com.minecenter.util.RedisUtil;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -39,12 +41,14 @@ public class UserRealm extends AuthorizingRealm {
     private final UserMapper userMapper;
     private final RoleMapper roleMapper;
     private final PermissionMapper permissionMapper;
+    private final RedisUtil redisUtil;
 
     @Autowired
-    public UserRealm(UserMapper userMapper, RoleMapper roleMapper, PermissionMapper permissionMapper) {
+    public UserRealm(UserMapper userMapper, RoleMapper roleMapper, PermissionMapper permissionMapper, RedisUtil redisUtil) {
         this.userMapper = userMapper;
         this.roleMapper = roleMapper;
         this.permissionMapper = permissionMapper;
+        this.redisUtil = redisUtil;
     }
 
     /**
@@ -100,16 +104,15 @@ public class UserRealm extends AuthorizingRealm {
         if (user == null) {
             throw new AuthenticationException("该帐号不存在(The account does not exist.)");
         }
-        // TODO (chunsiyang 2018/12/03 暂时去除redis支持，单独测试shiro待完成shrio部分后加入redis支持)
         // 开始认证，要AccessToken认证通过，且Redis中存在RefreshToken，且两个Token时间戳一致
-        /*if(JwtUtil.verify(token) && JedisUtil.exists(Constant.PREFIX_SHIRO_REFRESH_TOKEN + account)){
+        if(JwtUtil.verify(token) && RedisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account)){
             // 获取RefreshToken的时间戳
-            String currentTimeMillisRedis = JedisUtil.getObject(Constant.PREFIX_SHIRO_REFRESH_TOKEN + account).toString();
+            String currentTimeMillisRedis = RedisUtil.get(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account).toString();
             // 获取AccessToken时间戳，与RefreshToken的时间戳对比
-            if(JwtUtil.getClaim(token, Constant.CURRENT_TIME_MILLIS).equals(currentTimeMillisRedis)){
+            if(JwtUtil.getIssuedAt(token).toString().equals(currentTimeMillisRedis)){
                 return new SimpleAuthenticationInfo(token, token, "userRealm");
             }
-        }*/
+        }
         if (JwtUtil.getExpiresAt(token).getTime() > System.currentTimeMillis()) {
             return new SimpleAuthenticationInfo(token, token, "userRealm");
         }

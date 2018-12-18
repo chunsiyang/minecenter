@@ -1,7 +1,9 @@
 package com.minecenter.config.shiro;
 
 import com.minecenter.config.shiro.jwt.JwtToken;
+import com.minecenter.model.common.RedisKeyEnum;
 import com.minecenter.util.JwtUtil;
+import com.minecenter.util.RedisUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.mgt.DefaultSecurityManager;
@@ -20,13 +22,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @PropertySource("classpath:config.properties")
 public class UserRealmTest {
+
     private static String accessTokenExpireTime;
+    private static String refreshTokenExpireTime;
     @Autowired
     private DefaultSecurityManager securityManager;
 
     @Value("${accessTokenExpireTime}")
     public void setAccessTokenExpireTime(String accessTokenExpireTime) {
         UserRealmTest.accessTokenExpireTime = accessTokenExpireTime;
+    }
+
+    @Value("${refreshTokenExpireTime}")
+    public void setRefreshTokenExpireTime(String refreshTokenExpireTime) {
+        UserRealmTest.refreshTokenExpireTime = refreshTokenExpireTime;
     }
 
     /**
@@ -37,8 +46,11 @@ public class UserRealmTest {
      */
     @Test
     public void shouldHaveNoErrWhenGiveRightToken() {
-        String token = JwtUtil.sign("admin", System.currentTimeMillis(), "userRealmTest");
+        Long timeMillis = System.currentTimeMillis();
+        String token = JwtUtil.sign("admin", timeMillis, "userRealmTest");
         SecurityUtils.setSecurityManager(securityManager);
+        RedisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + "admin",
+                timeMillis, Integer.parseInt(refreshTokenExpireTime));
         Subject subject = SecurityUtils.getSubject();
         subject.login(new JwtToken(token));
     }

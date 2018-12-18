@@ -23,6 +23,6 @@ public class SpringDataRedisTest {
     @Test
     public void shouldAccessRedisSuccess() throws Exception {
         stringRedisTemplate.opsForValue().set("aaa", "111",10);
-        Assert.assertEquals("111", stringRedisTemplate.opsForValue().get("aaa"));
+        Assert.assertEquals("111", stringRedisTemplate.opsForValue().get("aaa").trim());
     }
 }

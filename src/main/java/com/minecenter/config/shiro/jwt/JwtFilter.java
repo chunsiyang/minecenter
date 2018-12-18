@@ -3,8 +3,12 @@ package com.minecenter.config.shiro.jwt;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.minecenter.exception.CustomException;
+import com.minecenter.model.common.RedisKeyEnum;
 import com.minecenter.model.common.ResponseBean;
+import com.minecenter.util.JwtUtil;
+import com.minecenter.util.RedisUtil;
 import com.minecenter.util.common.JsonConvertUtil;
+import com.minecenter.util.common.PropertiesUtil;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,12 +60,11 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
                     msg = "Token或者密钥不正确(" + throwable.getMessage() + ")";
                 } else if (throwable instanceof TokenExpiredException) {
                     // 该异常为JWT的AccessToken已过期，判断RefreshToken未过期就进行AccessToken刷新
-                    //TODO (yangchunsi 20181205)redis 为实现暂时注释掉
-                    /*if(this.refreshToken(request, response)){
+                    if(this.refreshToken(request, response)){
                         return true;
                     }else{
                         msg = "Token已过期(" + throwable.getMessage() + ")";
-                    }*/
+                    }
                 } else {
                     // 应用异常不为空
                     if (throwable != null) {
@@ -120,27 +123,26 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
     /**
      * 此处为AccessToken刷新，进行判断RefreshToken是否过期，未过期就返回新的AccessToken且继续正常访问
      */
-    //TODO (yangchunsi 20181205)redis 为实现暂时注释掉=
-    /*private boolean refreshToken(ServletRequest request, ServletResponse response) {
+    private boolean refreshToken(ServletRequest request, ServletResponse response) {
         // 拿到当前Header中Authorization的AccessToken(Shiro中getAuthzHeader方法已经实现)
         String token = this.getAuthzHeader(request);
         // 获取当前Token的帐号信息
-        String account = JwtUtil.getSubject(token);
+        String account = RedisUtil.get(token).toString();
         // 判断Redis中RefreshToken是否存在
-        if(JedisUtil.exists(Constant.PREFIX_SHIRO_REFRESH_TOKEN + account)){
+        if(RedisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account)){
             // Redis中RefreshToken还存在，获取RefreshToken的时间戳
-            String currentTimeMillisRedis = JedisUtil.getObject(Constant.PREFIX_SHIRO_REFRESH_TOKEN + account).toString();
+            String currentTimeMillisRedis = RedisUtil.get(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account).toString();
             // 获取当前AccessToken中的时间戳，与RefreshToken的时间戳对比，如果当前时间戳一致，进行AccessToken刷新
-            if(JwtUtil.getClaim(token, Constant.CURRENT_TIME_MILLIS).equals(currentTimeMillisRedis)){
+            if(JwtUtil.getIssuedAt(token).toString().equals(currentTimeMillisRedis)){
                 // 获取当前最新时间戳
-                String currentTimeMillis = String.valueOf(System.currentTimeMillis());
+                Long currentTimeMillis = System.currentTimeMillis();
                 // 读取配置文件，获取refreshTokenExpireTime属性
                 PropertiesUtil.readProperties("config.properties");
                 String refreshTokenExpireTime = PropertiesUtil.getProperty("refreshTokenExpireTime");
                 // 设置RefreshToken中的时间戳为当前最新时间戳，且刷新过期时间重新为30分钟过期(配置文件可配置refreshTokenExpireTime属性)
-                JedisUtil.setObject(Constant.PREFIX_SHIRO_REFRESH_TOKEN + account, currentTimeMillis, Integer.parseInt(refreshTokenExpireTime));
+                RedisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account, currentTimeMillis, Integer.parseInt(refreshTokenExpireTime));
                 // 刷新AccessToken，设置时间戳为当前最新时间戳
-                token = JwtUtil.sign(account, currentTimeMillis);
+                token = JwtUtil.sign(account, currentTimeMillis,PropertiesUtil.getProperty("jwtIssuer"));
                 // 将新刷新的AccessToken再次进行Shiro的登录
                 JwtToken jwtToken = new JwtToken(token);
                 // 提交给UserRealm进行认证，如果错误他会抛出异常并被捕获，如果没有抛出异常则代表登入成功，返回true
@@ -153,7 +155,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
             }
         }
         return false;
-    }*/
+    }
 
     /**
      * 无需转发，直接返回Response信息
