@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.util.StringUtil;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -109,12 +110,12 @@ public class UserRealm extends AuthorizingRealm {
             // 获取RefreshToken的时间戳
             String currentTimeMillisRedis = RedisUtil.get(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account).toString();
             // 获取AccessToken时间戳，与RefreshToken的时间戳对比
-            if(JwtUtil.getIssuedAt(token).toString().equals(currentTimeMillisRedis)){
+            if (new Date(Long.valueOf(currentTimeMillisRedis)).toString().equals(JwtUtil.getIssuedAt(token).toString())) {
                 return new SimpleAuthenticationInfo(token, token, "userRealm");
             }
         }
         if (JwtUtil.getExpiresAt(token).getTime() > System.currentTimeMillis()) {
-            return new SimpleAuthenticationInfo(token, token, "userRealm");
+             return new SimpleAuthenticationInfo(token, token, "userRealm");
         }
         throw new AuthenticationException("Token已过期(Token expired or incorrect.)");
     }

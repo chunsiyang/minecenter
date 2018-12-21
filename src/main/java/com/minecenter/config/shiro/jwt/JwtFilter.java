@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 
 /**
  * JWT过滤
@@ -127,13 +128,13 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         // 拿到当前Header中Authorization的AccessToken(Shiro中getAuthzHeader方法已经实现)
         String token = this.getAuthzHeader(request);
         // 获取当前Token的帐号信息
-        String account = RedisUtil.get(token).toString();
+        String account = JwtUtil.getSubject(token);
         // 判断Redis中RefreshToken是否存在
         if(RedisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account)){
             // Redis中RefreshToken还存在，获取RefreshToken的时间戳
             String currentTimeMillisRedis = RedisUtil.get(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account).toString();
             // 获取当前AccessToken中的时间戳，与RefreshToken的时间戳对比，如果当前时间戳一致，进行AccessToken刷新
-            if(JwtUtil.getIssuedAt(token).toString().equals(currentTimeMillisRedis)){
+            if(JwtUtil.getIssuedAt(token).toString().equals(new Date(Long.valueOf(currentTimeMillisRedis)).toString())){
                 // 获取当前最新时间戳
                 Long currentTimeMillis = System.currentTimeMillis();
                 // 读取配置文件，获取refreshTokenExpireTime属性

@@ -2,10 +2,12 @@ package com.minecenter.util;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +27,23 @@ public class RedisUtil {
 
 
     //=============================common============================
+
+    /**
+     * 清空数据库
+     * @return java.lang.Boolean
+     * @author yangchunsi
+     * @date 2018/12/19 15:51
+     */
+    public static Boolean removeAll() {
+        try {
+            return redisTemplate.delete("*");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
     /**
      * key是否存在
      * @param key key
@@ -33,7 +52,38 @@ public class RedisUtil {
      * @date 2018/9/4 15:51
      */
     public static Boolean exists(String key) {
-        return redisTemplate.hasKey(key);
+        try {
+            return redisTemplate.hasKey(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * 获取key数量
+     * @return java.lang.Boolean
+     * @author yangchunsi
+     * @date 2018/12/18 15:51
+     */
+    public static Long dbSize() {
+        return redisTemplate.execute(RedisConnection::dbSize);
+    }
+
+    /**
+     * 根据正则获取匹配的key
+     * @param key 正则表达式
+     * @return java.lang.Boolean
+     * @author yangchunsi
+     * @date 2018/9/4 15:51
+     */
+    public static Set<String> keys(String key) {
+        try {
+            return redisTemplate.keys(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new HashSet<>();
+        }
     }
 
     /**
@@ -61,20 +111,6 @@ public class RedisUtil {
      */
     public static long getExpire(String key){
         return redisTemplate.getExpire(key,TimeUnit.SECONDS);
-    }
-
-    /**
-     * 判断key是否存在
-     * @param key 键
-     * @return true 存在 false不存在
-     */
-    public static boolean hasKey(String key){
-        try {
-            return redisTemplate.hasKey(key);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 
     /**

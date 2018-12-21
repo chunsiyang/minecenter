@@ -1,5 +1,6 @@
 package com.minecenter.config.shiro;
 
+import com.minecenter.config.shiro.cache.CustomCacheManager;
 import com.minecenter.config.shiro.jwt.JwtFilter;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
@@ -38,6 +39,13 @@ public class ShiroConfig {
     public DefaultWebSecurityManager getManager(UserRealm userRealm) {
         DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
         // 使用自定义Realm
+        userRealm.setCacheManager(new CustomCacheManager());
+        //启用身份验证缓存，即缓存AuthenticationInfo信息，默认false
+        userRealm.setAuthenticationCachingEnabled(true);
+        userRealm.setAuthenticationCacheName("authenticationCache");
+        //启用授权缓存，即缓存AuthorizationInfo信息，默认false
+        userRealm.setAuthorizationCachingEnabled(true);
+        userRealm.setAuthorizationCacheName("authorizationCache");
         manager.setRealm(userRealm);
         // 关闭Shiro自带的session
         DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
@@ -46,8 +54,7 @@ public class ShiroConfig {
         subjectDAO.setSessionStorageEvaluator(defaultSessionStorageEvaluator);
         manager.setSubjectDAO(subjectDAO);
         // 设置自定义Cache缓存
-        //TODO (yangchunsi 20181205)redis 为实现暂时注释掉
-        /*manager.setCacheManager(new CustomCacheManager());*/
+        manager.setCacheManager(new CustomCacheManager());
         return manager;
     }
 

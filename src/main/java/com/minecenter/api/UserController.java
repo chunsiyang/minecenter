@@ -8,14 +8,12 @@ import com.minecenter.service.UserService;
 import com.minecenter.util.AesCipherUtil;
 import com.minecenter.util.JwtUtil;
 import com.minecenter.util.RedisUtil;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -37,6 +35,12 @@ public class UserController {
      */
     @Value("${refreshTokenExpireTime}")
     private String refreshTokenExpireTime;
+
+    @GetMapping("/test")
+    @RequiresAuthentication
+    public ResponseBean test() {
+        return new ResponseBean(HttpStatus.OK.value(), "登录成功(Login Success.)", null);
+    }
 
     /**
      * 登录授权
