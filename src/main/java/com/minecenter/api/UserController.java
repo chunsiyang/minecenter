@@ -1,16 +1,13 @@
 package com.minecenter.api;
 
-import com.minecenter.exception.CustomUnauthorizedException;
-import com.minecenter.model.common.RedisKeyEnum;
 import com.minecenter.model.common.ResponseBean;
 import com.minecenter.model.entry.User;
 import com.minecenter.service.UserService;
-import com.minecenter.util.AesCipherUtil;
-import com.minecenter.util.JwtUtil;
-import com.minecenter.util.RedisUtil;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -28,18 +25,23 @@ import javax.servlet.http.HttpServletResponse;
 @PropertySource("classpath:config.properties")
 public class UserController {
 
-    @Autowired
-    UserService userService;
-    /**
-     * RefreshToken过期时间
-     */
-    @Value("${refreshTokenExpireTime}")
-    private String refreshTokenExpireTime;
+    private UserService userService;
 
-    @GetMapping("/test")
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    /**
+     * 测试登录
+     * @return ResponseBean
+     * @author chunsiyang
+     * @date 2018/12/22 16:18
+     */
+    @GetMapping("/article")
     @RequiresAuthentication
-    public ResponseBean test() {
-        return new ResponseBean(HttpStatus.OK.value(), "登录成功(Login Success.)", null);
+    public ResponseBean article() {
+        return new ResponseBean(HttpStatus.OK.value(), "您已经登录了(You are already logged in)", null);
     }
 
     /**
@@ -53,33 +55,37 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseBean login(@RequestBody User user, HttpServletResponse httpServletResponse) {
-        // 查询数据库中的帐号信息
-        User userTemp = new User();
-        userTemp.setAccount(user.getAccount());
-        userTemp = userService.selectOne(userTemp);
-        if (userTemp == null) {
-            throw new CustomUnauthorizedException("该帐号不存在(The account does not exist.)");
-        }
-        // 密码进行AES解密
-        String key = AesCipherUtil.deCrypto(userTemp.getPassword());
-        // 因为密码加密是以帐号+密码的形式进行加密的，所以解密后的对比是帐号+密码
-        if (key.equals(user.getAccount() + user.getPassword())) {
-            // 清除可能存在的Shiro权限信息缓存
-            if(RedisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_CACHE + user.getAccount())){
-                RedisUtil.del(RedisKeyEnum.PREFIX_SHIRO_CACHE + user.getAccount());
-            }
-            // 设置RefreshToken，时间戳为当前时间戳，直接设置即可(不用先删后设，会覆盖已有的RefreshToken)
-            Long currentTimeMillis = System.currentTimeMillis();
-            RedisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getAccount(), currentTimeMillis, Integer.parseInt(refreshTokenExpireTime));
-
-            // 从Header中Authorization返回AccessToken，时间戳为当前时间戳
-            String token = JwtUtil.sign(user.getAccount(), currentTimeMillis, "userController");
-            httpServletResponse.setHeader("Authorization", token);
-            httpServletResponse.setHeader("Access-Control-Expose-Headers", "Authorization");
-            return new ResponseBean(HttpStatus.OK.value(), "登录成功(Login Success.)", null);
-        } else {
-            throw new CustomUnauthorizedException("帐号或密码错误(Account or Password Error.)");
-        }
+        httpServletResponse.setHeader("Authorization", userService.login(user));
+        httpServletResponse.setHeader("Access-Control-Expose-Headers", "Authorization");
+        return new ResponseBean(HttpStatus.OK.value(), "登录成功(Login Success.)", null);
     }
 
+    /**
+     * 更新用户
+     * @param user user
+     * @return java.util.Map<java.lang.String.java.lang.Object>
+     * @author Wang926454
+     * @date 2018/8/30 10:42
+     */
+    @PutMapping
+    @RequiresPermissions(value = {"user:edit"})
+    public ResponseBean update(@RequestBody User user) {
+        userService.update(user);
+        return new ResponseBean(HttpStatus.OK.value(), "更新成功（update success）", null);
+    }
+
+    /**
+     * 用户主动注销
+     *
+     * @author yangchunsi
+     * @date 2018/12/23 16:21
+     */
+    @GetMapping("/logout")
+    @RequiresAuthentication
+    public ResponseBean logout() {
+        Subject subject = SecurityUtils.getSubject();
+        String token = subject.getPrincipal().toString();
+        userService.logout(token);
+        return new ResponseBean(HttpStatus.OK.value(), "注销成功（logOut success）",null);
+    }
 }

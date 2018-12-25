@@ -1,9 +1,13 @@
 package com.minecenter.model.entry;
 
+import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Table(name = "sys_user_role")
-public class UserRole {
+public class UserRole implements Serializable {
+
+    @Id
     private Integer id;
 
     private Integer userId;

@@ -19,8 +19,6 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.util.StringUtil;
@@ -32,24 +30,20 @@ import java.util.List;
  * 自定义Realm
  *
  * @author chunsiyang
- * @date 2018/8/30 14:10
+ * @date 2018/12/21 14:10
  */
 @Service
 public class UserRealm extends AuthorizingRealm {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserRealm.class);
-
     private final UserMapper userMapper;
     private final RoleMapper roleMapper;
     private final PermissionMapper permissionMapper;
-    private final RedisUtil redisUtil;
 
     @Autowired
-    public UserRealm(UserMapper userMapper, RoleMapper roleMapper, PermissionMapper permissionMapper, RedisUtil redisUtil) {
+    public UserRealm(UserMapper userMapper, RoleMapper roleMapper, PermissionMapper permissionMapper) {
         this.userMapper = userMapper;
         this.roleMapper = roleMapper;
         this.permissionMapper = permissionMapper;
-        this.redisUtil = redisUtil;
     }
 
     /**
@@ -71,14 +65,12 @@ public class UserRealm extends AuthorizingRealm {
         user.setAccount(account);
         // 查询用户角色
         List<Role> roleList = roleMapper.findRoleByUser(user);
-        for (int i = 0, roleLen = roleList.size(); i < roleLen; i++) {
-            Role role = roleList.get(i);
+        for (Role role : roleList) {
             // 添加角色
             simpleAuthorizationInfo.addRole(role.getName());
             // 根据用户角色查询权限
             List<Permission> permissionList = permissionMapper.findPermissionByRole(role);
-            for (int j = 0, perLen = permissionList.size(); j < perLen; j++) {
-                Permission permission = permissionList.get(j);
+            for (Permission permission : permissionList) {
                 // 添加权限
                 simpleAuthorizationInfo.addStringPermission(permission.getPerCode());
             }

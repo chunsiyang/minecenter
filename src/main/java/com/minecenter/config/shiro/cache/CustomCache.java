@@ -6,6 +6,7 @@ import com.minecenter.util.RedisUtil;
 import com.minecenter.util.common.PropertiesUtil;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
+import org.apache.shiro.subject.PrincipalCollection;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +28,13 @@ public class CustomCache<K,V> implements Cache<K,V> {
      * @date 2018/9/4 18:33
      */
     private String getKey(Object key){
-        return RedisKeyEnum.PREFIX_SHIRO_CACHE + JwtUtil.getSubject(key.toString());
+        if (key instanceof PrincipalCollection) {
+            return RedisKeyEnum.PREFIX_SHIRO_CACHE_AUTHORIZATIONCACHE + JwtUtil.getSubject(key.toString());
+
+        } else {
+            return RedisKeyEnum.PREFIX_SHIRO_CACHE_AUTHENTICATIONCACHE + JwtUtil.getSubject(key.toString());
+
+        }
     }
 
     /**

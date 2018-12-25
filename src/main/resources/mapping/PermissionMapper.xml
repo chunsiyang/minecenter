@@ -9,9 +9,9 @@
         p.name as name,
         p.per_code as perCode
         FROM
-        role r
-        LEFT JOIN role_permission rp ON r.id = rp.role_id
-        LEFT JOIN permission p ON p.id = rp.permission_id
+        sys_role r
+        LEFT JOIN sys_role_permission rp ON r.id = rp.role_id
+        LEFT JOIN sys_permission p ON p.id = rp.permission_id
         <where>
             1 = 1
             <if test="name != null and name != '' ">

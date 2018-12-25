@@ -1,10 +1,15 @@
 package com.minecenter.model.entry;
 
+
+import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.Date;
 
 @Table(name = "sys_user")
-public class User {
+public class User implements Serializable {
+
+    @Id
     private Integer id;
 
     private String account;

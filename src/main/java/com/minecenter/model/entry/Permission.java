@@ -1,9 +1,13 @@
 package com.minecenter.model.entry;
 
+import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Table(name = "sys_permission")
-public class Permission {
+public class Permission implements Serializable {
+
+    @Id
     private Integer id;
 
     private String name;
