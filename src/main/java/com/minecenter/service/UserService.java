@@ -113,7 +113,6 @@ public class UserService {
      * @author yangchunsi
      * @date 2018/12/23 16:21
      */
-    @Transactional(rollbackFor = Exception.class)
     public void logout(String token) {
         String account = JwtUtil.getSubject(token);
         clearShiroCache(account);
