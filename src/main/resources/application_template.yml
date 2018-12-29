@@ -22,7 +22,10 @@ spring:
       test-on-return: false
       pool-prepared-statements: true
       max-open-prepared-statements: 20
-
+  redis:
+    host: yourIp
+    port: yourPort
+    password: yourPasswd
 
 mybatis:
   mapper-locations: classpath:src/main/resources/mapping/*.xml
