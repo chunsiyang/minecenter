@@ -3,6 +3,9 @@ package com.minecenter.api;
 import com.minecenter.model.common.ResponseBean;
 import com.minecenter.model.entry.User;
 import com.minecenter.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -23,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/user")
 @PropertySource("classpath:config.properties")
+@Api("用户相关")
 public class UserController {
 
     private UserService userService;
@@ -38,6 +42,8 @@ public class UserController {
      * @author chunsiyang
      * @date 2018/12/22 16:18
      */
+    @ApiOperation(value="验证登录", notes="验证当前token所代表的用户是否登录")
+    @ApiImplicitParam(name = "Authorization",value = "JWT token",paramType = "header",dataType = "string")
     @GetMapping("/article")
     @RequiresAuthentication
     public ResponseBean article() {
