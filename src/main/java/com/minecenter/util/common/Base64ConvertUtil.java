@@ -6,7 +6,7 @@ import java.util.Base64;
 /**
  * Base64工具
  *
- * @author yangchunsi
+ * @author chunsiyang
  * @date 2018/8/21 15:14
  */
 public class Base64ConvertUtil {
@@ -14,9 +14,9 @@ public class Base64ConvertUtil {
     /**
      * 加密JDK1.8
      *
-     * @param str
+     * @param str 待加密文本
      * @return java.lang.String
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/8/21 15:28
      */
     public static String encode(String str) throws UnsupportedEncodingException {
@@ -27,9 +27,9 @@ public class Base64ConvertUtil {
     /**
      * 解密JDK1.8
      *
-     * @param str
+     * @param str 待解密文本
      * @return java.lang.String
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/8/21 15:28
      */
     public static String decode(String str) throws UnsupportedEncodingException {

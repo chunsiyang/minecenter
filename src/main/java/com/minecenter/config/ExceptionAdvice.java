@@ -6,6 +6,8 @@ import com.minecenter.model.common.ResponseBean;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -21,6 +23,12 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestControllerAdvice
 public class ExceptionAdvice {
+
+    /**
+     * Logger
+     */
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     /**
      * 捕捉所有Shiro异常
      * @param e ShiroException
@@ -29,6 +37,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(ShiroException.class)
     public ResponseBean handle401(ShiroException e) {
+        logger.error(e.getMessage(),e);
         return new ResponseBean(HttpStatus.UNAUTHORIZED.value(), "无权访问(Unauthorized):" + e.getMessage(), null);
     }
 
@@ -41,6 +50,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseBean handle401(UnauthorizedException e) {
+        logger.error(e.getMessage(),e);
         return new ResponseBean(HttpStatus.UNAUTHORIZED.value(), "无权访问(Unauthorized):当前Subject没有此请求所需权限(" + e.getMessage() + ")", null);
     }
 
@@ -53,6 +63,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthenticatedException.class)
     public ResponseBean handle401(UnauthenticatedException e) {
+        logger.error(e.getMessage(),e);
         return new ResponseBean(HttpStatus.UNAUTHORIZED.value(), "无权访问(Unauthorized):当前Subject是匿名Subject，请先登录(This subject is anonymous.)", null);
     }
 
@@ -63,6 +74,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(CustomUnauthorizedException.class)
     public ResponseBean handle401(CustomUnauthorizedException e) {
+        logger.error(e.getMessage(),e);
         return new ResponseBean(HttpStatus.UNAUTHORIZED.value(), "无权访问(Unauthorized):" + e.getMessage(), null);
     }
 
@@ -73,6 +85,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(CustomException.class)
     public ResponseBean handle(CustomException e) {
+        logger.error(e.getMessage(),e);
         return new ResponseBean(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
     }
 
@@ -83,19 +96,21 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseBean handle(NoHandlerFoundException e) {
+        logger.error(e.getMessage(),e);
         return new ResponseBean(HttpStatus.NOT_FOUND.value(), e.getMessage(), null);
     }
 
     /**
      * 捕捉其他所有异常
      * @param request HttpServletRequest
-     * @param ex Exception
+     * @param e Exception
      * @return ResponseBean
      */
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    public ResponseBean globalException(HttpServletRequest request, Throwable ex) {
-        return new ResponseBean(this.getStatus(request).value(), ex.toString() + ": " + ex.getMessage(), null);
+    public ResponseBean globalException(HttpServletRequest request, Throwable e) {
+        logger.error(e.getMessage(),e);
+        return new ResponseBean(this.getStatus(request).value(), e.toString() + ": " + e.getMessage(), null);
     }
 
     /**

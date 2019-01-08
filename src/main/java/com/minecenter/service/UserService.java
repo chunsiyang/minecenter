@@ -47,10 +47,9 @@ public class UserService {
      *
      * @param  user      user
      * @return token
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/12/22 16:21
      */
-    @Transactional(rollbackFor = Exception.class)
     public String login(User user) {
         // 查询数据库中的帐号信息
         User userTemp = new User();
@@ -79,7 +78,7 @@ public class UserService {
      * 更新用户信息
      *
      * @param  user      user
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/12/22 16:21
      */
     @Transactional(rollbackFor = Exception.class)
@@ -110,7 +109,7 @@ public class UserService {
      * 用户主动注销
      *
      * @param  token     jwt token
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/12/23 16:21
      */
     public void logout(String token) {

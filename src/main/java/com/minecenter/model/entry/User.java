@@ -1,23 +1,32 @@
 package com.minecenter.model.entry;
 
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 
+@ApiModel(value = "User", description = "用户")
 @Table(name = "sys_user")
 public class User implements Serializable {
 
     @Id
+    @ApiModelProperty(hidden = true)
     private Integer id;
 
+    @ApiModelProperty(value = "用户名称(User Account)", required = true)
     private String account;
 
+    @ApiModelProperty(value = "用户密码(User password)", required = true)
     private String password;
 
+    @ApiModelProperty(hidden = true)
     private String username;
 
+    @ApiModelProperty(hidden = true)
     private Date regTime;
 
     public Integer getId() {

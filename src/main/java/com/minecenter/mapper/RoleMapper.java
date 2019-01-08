@@ -15,8 +15,8 @@ public interface RoleMapper extends Mapper<Role> {
      *
      * @param user 封装查询条件
      * @return java.util.List<com.wang.model.RoleDto>
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/8/31 11:30
      */
-    public List<Role> findRoleByUser(User user);
+    List<Role> findRoleByUser(User user);
 }

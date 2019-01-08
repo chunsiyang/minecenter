@@ -1,6 +1,7 @@
 package com.minecenter.util.common;
 
-import com.minecenter.exception.CustomException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +17,11 @@ import java.util.Properties;
 public class PropertiesUtil {
 
     /**
+     * Logger
+     */
+    private static Logger logger = LoggerFactory.getLogger(PropertiesUtil.class);
+
+    /**
      * PROP
      */
     private static final Properties PROP = new Properties();
@@ -27,23 +33,13 @@ public class PropertiesUtil {
      * @date 2018/8/31 17:29
      */
     public static void readProperties(String fileName){
-        InputStream in = null;
-        try {
-            in = PropertiesUtil.class.getResourceAsStream("/" + fileName);
+        try (InputStream in = PropertiesUtil.class.getResourceAsStream("/" + fileName)) {
             BufferedReader bf = new BufferedReader(new InputStreamReader(in));
             PROP.load(bf);
-        } catch (IOException e){
-            e.printStackTrace();
-        } finally {
-            try{
-                if(in != null){
-                    in.close();
-                }
-            }catch (IOException e){
-                e.printStackTrace();
-                throw new CustomException("PropertiesUtil工具类读取配置文件出现IOException异常");
-            }
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
         }
+
     }
 
     /**

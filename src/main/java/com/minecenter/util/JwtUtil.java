@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * JAVA-JWT工具类
  *
- * @author yangchunsi
+ * @author chunsiyang
  * @date 2018/8/30 11:45
  */
 @Component
@@ -40,7 +40,7 @@ public class JwtUtil {
      *
      * @param token Token
      * @return boolean 是否正确
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/8/31 9:05
      */
     public static boolean verify(String token) {
@@ -53,7 +53,6 @@ public class JwtUtil {
             DecodedJWT jwt = verifier.verify(token);
             return true;
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
             throw new CustomException("JWTToken认证解密出现UnsupportedEncodingException异常");
         }
     }
@@ -64,7 +63,7 @@ public class JwtUtil {
      * @param token jwt token
      * @param claim claim
      * @return java.lang.String
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/9/7 16:54
      */
     public static String getClaim(String token, String claim) {
@@ -73,7 +72,6 @@ public class JwtUtil {
             // 只能输出String类型，如果是其他类型返回null
             return jwt.getClaim(claim).asString();
         } catch (JWTDecodeException e) {
-            e.printStackTrace();
             throw new CustomException("解密Token中的公共信息出现JWTDecodeException异常");
         }
     }
@@ -83,7 +81,7 @@ public class JwtUtil {
      *
      * @param token jwt token
      * @return java.lang.String
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/9/7 16:54
      */
     public static String getIssuer(String token) {
@@ -92,7 +90,6 @@ public class JwtUtil {
             // 只能输出String类型，如果是其他类型返回null
             return jwt.getIssuer();
         } catch (JWTDecodeException e) {
-            e.printStackTrace();
             throw new CustomException("解密Token中的公共信息出现JWTDecodeException异常");
         }
     }
@@ -102,7 +99,7 @@ public class JwtUtil {
      *
      * @param token jwt token
      * @return java.lang.String
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/9/7 16:54
      */
     public static Date getIssuedAt(String token) {
@@ -111,7 +108,6 @@ public class JwtUtil {
             // 只能输出String类型，如果是其他类型返回null
             return jwt.getIssuedAt();
         } catch (JWTDecodeException e) {
-            e.printStackTrace();
             throw new CustomException("解密Token中的公共信息出现JWTDecodeException异常");
         }
     }
@@ -121,7 +117,7 @@ public class JwtUtil {
      *
      * @param token jwt token
      * @return java.lang.String
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/9/7 16:54
      */
     public static Date getExpiresAt(String token) {
@@ -130,7 +126,6 @@ public class JwtUtil {
             // 只能输出String类型，如果是其他类型返回null
             return jwt.getExpiresAt();
         } catch (JWTDecodeException e) {
-            e.printStackTrace();
             throw new CustomException("解密Token中的公共信息出现JWTDecodeException异常");
         }
     }
@@ -140,7 +135,7 @@ public class JwtUtil {
      *
      * @param token jwt token
      * @return java.lang.String
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/9/7 16:54
      */
     public static Date getNotBefore(String token) {
@@ -149,7 +144,6 @@ public class JwtUtil {
             // 只能输出String类型，如果是其他类型返回null
             return jwt.getNotBefore();
         } catch (JWTDecodeException e) {
-            e.printStackTrace();
             throw new CustomException("解密Token中的公共信息出现JWTDecodeException异常");
         }
     }
@@ -159,7 +153,7 @@ public class JwtUtil {
      *
      * @param token jwt token
      * @return java.lang.String
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/9/7 16:54
      */
     public static String getSubject(String token) {
@@ -168,7 +162,6 @@ public class JwtUtil {
             // 只能输出String类型，如果是其他类型返回null
             return jwt.getSubject();
         } catch (JWTDecodeException e) {
-            e.printStackTrace();
             throw new CustomException("解密Token中的公共信息出现JWTDecodeException异常");
         }
     }
@@ -180,7 +173,7 @@ public class JwtUtil {
      * @param currentTimeMills 系统时间
      * @param issuer           签发者
      * @return java.lang.String 返回加密的Token
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/8/31 9:07
      */
     public static String sign(String account, Long currentTimeMills, String issuer) {

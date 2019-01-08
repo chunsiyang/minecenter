@@ -15,8 +15,8 @@ public interface PermissionMapper extends Mapper<Permission> {
      *
      * @param role 查询条件
      * @return java.util.List<com.wang.model.PermissionDto>
-     * @author yangchunsi
+     * @author chunsiyang
      * @date 2018/8/31 11:30
      */
-    public List<Permission> findPermissionByRole(Role role);
+    List<Permission> findPermissionByRole(Role role);
 }
