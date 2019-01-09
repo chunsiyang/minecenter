@@ -131,6 +131,13 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>RELEASE</version>
         </dependency>
+        <!--&lt;!&ndash; hibernate-validator &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>org.hibernate</groupId>-->
+            <!--<artifactId>hibernate-validator</artifactId>-->
+            <!--<version>RELEASE</version>-->
+        <!--</dependency>-->
+
     </dependencies>
 
     <build>

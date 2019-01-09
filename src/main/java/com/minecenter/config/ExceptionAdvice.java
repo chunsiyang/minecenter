@@ -9,12 +9,18 @@ import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 异常控制处理器
@@ -79,6 +85,19 @@ public class ExceptionAdvice {
     }
 
     /**
+     * 捕捉校验异常(MethodArgumentNotValidException)
+     * @return ResponseBean
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseBean validException(MethodArgumentNotValidException e) {
+        List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
+        Map<String, Object> result = this.getValidError(fieldErrors);
+        logger.error(e.getMessage(),e);
+        return new ResponseBean(HttpStatus.BAD_REQUEST.value(), result.get("errorMsg").toString(), result.get("errorList"));
+    }
+
+    /**
      * 捕捉其他所有自定义异常
      * @return ResponseBean
      */
@@ -124,6 +143,24 @@ public class ExceptionAdvice {
             return HttpStatus.INTERNAL_SERVER_ERROR;
         }
         return HttpStatus.valueOf(statusCode);
+    }
+
+    /**
+     * 获取校验错误信息
+     * @param fieldErrors 错误字段
+     * @return Map<String, Object>
+     */
+    private Map<String, Object> getValidError(List<FieldError> fieldErrors){
+        Map<String, Object> result = new HashMap<String, Object>(16);
+        List<String> errorList = new ArrayList<String>();
+        StringBuffer errorMsg = new StringBuffer("校验异常(ValidException):");
+        for (FieldError error : fieldErrors){
+            errorList.add(error.getField() + "-" + error.getDefaultMessage());
+            errorMsg.append(error.getField() + "-" + error.getDefaultMessage() + ".");
+        }
+        result.put("errorList", errorList);
+        result.put("errorMsg", errorMsg);
+        return result;
     }
 
 }

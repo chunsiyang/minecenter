@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 /**
  * UserController
@@ -62,6 +63,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseBean login(
             @ApiParam(required = true, name = "user", value = "用户信息json数据(User information JSON data)")
+            @Valid
             @RequestBody User user,
             HttpServletResponse httpServletResponse) {
         httpServletResponse.setHeader("Authorization", AuthorizationUtil.getBearerToken(userService.login(user)));

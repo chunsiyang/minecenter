@@ -3,12 +3,15 @@ package com.minecenter.model.entry;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.context.annotation.PropertySource;
 
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
 
+@PropertySource("classpath:config.properties")
 @ApiModel(value = "User", description = "用户")
 @Table(name = "sys_user")
 public class User implements Serializable {
@@ -17,9 +20,11 @@ public class User implements Serializable {
     @ApiModelProperty(hidden = true)
     private Integer id;
 
+    @NotBlank
     @ApiModelProperty(value = "用户名称(User Account)", required = true)
     private String account;
 
+    @NotBlank
     @ApiModelProperty(value = "用户密码(User password)", required = true)
     private String password;
 
