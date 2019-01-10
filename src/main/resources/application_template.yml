@@ -2,6 +2,8 @@ server:
     port: 8090
 
 spring:
+  application:
+    name: mineCenter
   datasource:
     druid:
       name: devplat
