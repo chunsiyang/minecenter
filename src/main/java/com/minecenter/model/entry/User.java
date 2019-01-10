@@ -4,6 +4,8 @@ package com.minecenter.model.entry;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.context.annotation.PropertySource;
+import tk.mybatis.mapper.annotation.KeySql;
+import tk.mybatis.mapper.code.ORDER;
 
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -14,11 +16,12 @@ import java.util.Date;
 @PropertySource("classpath:config.properties")
 @ApiModel(value = "User", description = "用户")
 @Table(name = "sys_user")
-public class User implements Serializable {
+public class User extends BaseBean implements Serializable {
 
     @Id
+    @KeySql(sql = "select uuid()",order = ORDER.BEFORE)
     @ApiModelProperty(hidden = true)
-    private Integer id;
+    private String id;
 
     @NotBlank
     @ApiModelProperty(value = "用户名称(User Account)", required = true)
@@ -34,11 +37,11 @@ public class User implements Serializable {
     @ApiModelProperty(hidden = true)
     private Date regTime;
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -4,15 +4,16 @@
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
 <generatorConfiguration>
 
-    <!-- !!!! Driver Class Path !!!! -->
-    <classPathEntry location="src\main\resources\generator\mysql-connector-java-5.1.13.jar"/>
+    <context id="Mysql" targetRuntime="MyBatis3Simple" defaultModelType="flat">
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
 
-    <context id="context" targetRuntime="MyBatis3">
-        <commentGenerator>
-            <property name="suppressAllComments" value="true"/>
-            <property name="suppressDate" value="true"/>
-            <property name="addRemarkComments" value="true"/>
-        </commentGenerator>
+
+
+        <plugin type="tk.mybatis.mapper.generator.MapperPlugin">
+            <property name="mappers" value="tk.mybatis.mapper.common.Mapper"/>
+            <property name="caseSensitive" value="true"/>
+        </plugin>
 
         <!-- !!!! Database Configurations !!!! -->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
@@ -20,36 +21,57 @@
                         userId="root"
                         password="Zxcpsp110120."/>
 
-        <javaTypeResolver>
-            <property name="forceBigDecimals" value="false"/>
-        </javaTypeResolver>
-
         <!-- !!!! Model Configurations !!!! -->
         <javaModelGenerator targetPackage="com.minecenter.model" targetProject="src\main\java\">
-            <property name="enableSubPackages" value="false"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
 
         <!-- !!!! Mapper XML Configurations !!!! -->
-        <sqlMapGenerator targetPackage="mapping" targetProject="src\main\resources\">
-            <property name="enableSubPackages" value="false"/>
-        </sqlMapGenerator>
+        <sqlMapGenerator targetPackage="mapping" targetProject="src\main\resources\"/>
 
         <!-- !!!! Mapper Interface Configurations !!!! -->
-        <javaClientGenerator targetPackage="com.minecenter.mapper" targetProject="src\main\java\" type="XMLMAPPER">
-            <property name="enableSubPackages" value="false"/>
-        </javaClientGenerator>
+        <javaClientGenerator targetPackage="com.minecenter.mapper" targetProject="src\main\java\" type="XMLMAPPER"/>
 
         <!-- !!!! Table Configurations !!!! -->
         <table tableName="sys_user" domainObjectName="User">
+            <ignoreColumn column="creat_id"/>
+            <ignoreColumn column="creat_date"/>
+            <ignoreColumn column="update_id"/>
+            <ignoreColumn column="update_date"/>
+            <ignoreColumn column="del_flag"/>
+            <ignoreColumn column="reg_time"/>
         </table>
-        <table tableName="sys_role" domainObjectName="role">
+        <table tableName="sys_role" domainObjectName="Role">
+            <ignoreColumn column="creat_id"/>
+            <ignoreColumn column="creat_date"/>
+            <ignoreColumn column="update_id"/>
+            <ignoreColumn column="update_date"/>
+            <ignoreColumn column="del_flag"/>
+            <ignoreColumn column="reg_time"/>
         </table>
         <table tableName="sys_permission" domainObjectName="Permission">
+            <ignoreColumn column="creat_id"/>
+            <ignoreColumn column="creat_date"/>
+            <ignoreColumn column="update_id"/>
+            <ignoreColumn column="update_date"/>
+            <ignoreColumn column="del_flag"/>
+            <ignoreColumn column="reg_time"/>
         </table>
         <table tableName="sys_user_role" domainObjectName="UserRole">
+            <ignoreColumn column="creat_id"/>
+            <ignoreColumn column="creat_date"/>
+            <ignoreColumn column="update_id"/>
+            <ignoreColumn column="update_date"/>
+            <ignoreColumn column="del_flag"/>
+            <ignoreColumn column="reg_time"/>
         </table>
         <table tableName="sys_role_permission" domainObjectName="RolePermission">
+            <ignoreColumn column="creat_id"/>
+            <ignoreColumn column="creat_date"/>
+            <ignoreColumn column="update_id"/>
+            <ignoreColumn column="update_date"/>
+            <ignoreColumn column="del_flag"/>
+            <ignoreColumn column="reg_time"/>
         </table>
     </context>
 </generatorConfiguration>

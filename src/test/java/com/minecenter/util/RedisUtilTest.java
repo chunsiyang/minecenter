@@ -20,7 +20,7 @@ public class RedisUtilTest {
     @Test
     public void shouldGotSameObjectFromRedis() throws Exception {
         User user = new User();
-        user.setId(123);
+        user.setId("123");
         user.setAccount("123");
         RedisUtil.set("aaa", user,10);
         User userFromRedis =(User) RedisUtil.get("aaa");
