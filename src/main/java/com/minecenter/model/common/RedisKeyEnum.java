@@ -4,7 +4,7 @@ public enum RedisKeyEnum {
     /**
      * redis-key-前缀-shiro:cache:authorizationcache
      */
-    PREFIX_SHIRO_CACHE_AUTHORIZATIONCACHE("shiro:cache:authorizationcache:"),
+    PREFIX_SHIRO_CACHE_AUTHORIZATIONCACHE("shiro:cache:authorizationCache:"),
     /**
      * redis-key-前缀-shiro:refresh_token:
      */
