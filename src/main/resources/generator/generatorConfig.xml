@@ -39,7 +39,7 @@
             <ignoreColumn column="update_id"/>
             <ignoreColumn column="update_date"/>
             <ignoreColumn column="del_flag"/>
-            <ignoreColumn column="reg_time"/>
+            <ignoreColumn column="remark"/>
         </table>
         <table tableName="sys_role" domainObjectName="Role">
             <ignoreColumn column="creat_id"/>
@@ -47,7 +47,7 @@
             <ignoreColumn column="update_id"/>
             <ignoreColumn column="update_date"/>
             <ignoreColumn column="del_flag"/>
-            <ignoreColumn column="reg_time"/>
+            <ignoreColumn column="remark"/>
         </table>
         <table tableName="sys_permission" domainObjectName="Permission">
             <ignoreColumn column="creat_id"/>
@@ -55,7 +55,7 @@
             <ignoreColumn column="update_id"/>
             <ignoreColumn column="update_date"/>
             <ignoreColumn column="del_flag"/>
-            <ignoreColumn column="reg_time"/>
+            <ignoreColumn column="remark"/>
         </table>
         <table tableName="sys_user_role" domainObjectName="UserRole">
             <ignoreColumn column="creat_id"/>
@@ -63,7 +63,7 @@
             <ignoreColumn column="update_id"/>
             <ignoreColumn column="update_date"/>
             <ignoreColumn column="del_flag"/>
-            <ignoreColumn column="reg_time"/>
+            <ignoreColumn column="remark"/>
         </table>
         <table tableName="sys_role_permission" domainObjectName="RolePermission">
             <ignoreColumn column="creat_id"/>
@@ -71,7 +71,7 @@
             <ignoreColumn column="update_id"/>
             <ignoreColumn column="update_date"/>
             <ignoreColumn column="del_flag"/>
-            <ignoreColumn column="reg_time"/>
+            <ignoreColumn column="remark"/>
         </table>
     </context>
 </generatorConfiguration>

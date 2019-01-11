@@ -9,8 +9,8 @@ import com.minecenter.model.common.RedisKeyEnum;
 import com.minecenter.model.entry.Permission;
 import com.minecenter.model.entry.Role;
 import com.minecenter.model.entry.User;
+import com.minecenter.util.CacheUtil;
 import com.minecenter.util.JwtUtil;
-import com.minecenter.util.RedisUtil;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -98,16 +98,13 @@ public class UserRealm extends AuthorizingRealm {
             throw new AuthenticationException("该帐号不存在(The account does not exist.)");
         }
         // 开始认证，要AccessToken认证通过，且Redis中存在RefreshToken，且两个Token时间戳一致
-        if(JwtUtil.verify(token) && RedisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account)){
+        if (JwtUtil.verify(token) && CacheUtil.exists(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account)) {
             // 获取RefreshToken的时间戳
-            String currentTimeMillisRedis = RedisUtil.get(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account).toString();
+            String currentTimeMillisRedis = CacheUtil.get(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account).toString();
             // 获取AccessToken时间戳，与RefreshToken的时间戳对比
             if (new Date(Long.valueOf(currentTimeMillisRedis)).toString().equals(JwtUtil.getIssuedAt(token).toString())) {
                 return new SimpleAuthenticationInfo(token, token, "userRealm");
             }
-        }
-        if (JwtUtil.getExpiresAt(token).getTime() > System.currentTimeMillis()) {
-             return new SimpleAuthenticationInfo(token, token, "userRealm");
         }
         throw new AuthenticationException("Token已过期(Token expired or incorrect.)");
     }

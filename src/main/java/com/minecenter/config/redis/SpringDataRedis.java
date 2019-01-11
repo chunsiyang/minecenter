@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -44,14 +45,27 @@ public class SpringDataRedis {
      * @return RedisTemplate<String, Object>
      */
     @Bean
+    @Primary
     public RedisTemplate<String, Object> functionDomainRedisTemplate(LettuceConnectionFactory redisConnectionFactory) {
+        return getStringObjectRedisTemplate(redisConnectionFactory, false);
+    }
+
+    /**
+     * 实例化 RedisTemplate 对象,启用事务
+     *
+     * @return RedisTemplate<String ,   Object>
+     */
+    @Bean(name = "redisTemplateTransaction")
+    public RedisTemplate<String, Object> functionDomainRedisTemplateTransaction(LettuceConnectionFactory redisConnectionFactory) {
+        return getStringObjectRedisTemplate(redisConnectionFactory, true);
+    }
+
+    private RedisTemplate<String, Object> getStringObjectRedisTemplate(LettuceConnectionFactory redisConnectionFactory, boolean b) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         // 开启事务
-        redisTemplate.setEnableTransactionSupport(true);
+        redisTemplate.setEnableTransactionSupport(b);
         // 指定序列化器
-        //enericJackson2JsonRedisSerializer(redisTemplate);
-        //jackson2JsonRedisSerializer(redisTemplate);
         jdkREdisSerializer(redisTemplate);
         return redisTemplate;
     }

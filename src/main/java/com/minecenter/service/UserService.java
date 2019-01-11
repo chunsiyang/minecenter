@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private UserMapper userMapper;
+    private RedisUtil redisUtil;
 
     /**
      * RefreshToken过期时间
@@ -38,8 +39,9 @@ public class UserService {
     private Integer passwordMaxLen;
 
     @Autowired
-    public UserService(UserMapper userMapper) {
+    public UserService(UserMapper userMapper, RedisUtil redisUtil) {
         this.userMapper = userMapper;
+        this.redisUtil = redisUtil;
     }
 
     /**
@@ -66,7 +68,7 @@ public class UserService {
             clearShiroCache(user.getAccount());
             // 设置RefreshToken，时间戳为当前时间戳，直接设置即可(不用先删后设，会覆盖已有的RefreshToken)
             Long currentTimeMillis = System.currentTimeMillis();
-            RedisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getAccount(), currentTimeMillis, Integer.parseInt(refreshTokenExpireTime));
+            redisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getAccount(), currentTimeMillis, Integer.parseInt(refreshTokenExpireTime));
             // 从Header中Authorization返回AccessToken，时间戳为当前时间戳
             return JwtUtil.sign(user.getAccount(), currentTimeMillis, jwtIssuer);
         } else {
@@ -118,18 +120,31 @@ public class UserService {
         clearRefreshTokenInRedis(account);
     }
 
+    /**
+     * 清除账户Shrio缓存
+     *
+     * @param account 需要清除的账户
+     * @author : chunsiyang
+     * @date : 2019年01月10日 下午 07:39:51
+     */
     private void clearShiroCache(String account) {
-        if (RedisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_CACHE_AUTHORIZATIONCACHE + account)) {
-            RedisUtil.del(RedisKeyEnum.PREFIX_SHIRO_CACHE_AUTHORIZATIONCACHE + account);
+        if (redisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_CACHE_AUTHORIZATIONCACHE + account)) {
+            redisUtil.del(RedisKeyEnum.PREFIX_SHIRO_CACHE_AUTHORIZATIONCACHE + account);
         }
-        if (RedisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_CACHE_AUTHENTICATIONCACHE + account)) {
-            RedisUtil.del(RedisKeyEnum.PREFIX_SHIRO_CACHE_AUTHENTICATIONCACHE + account);
+        if (redisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_CACHE_AUTHENTICATIONCACHE + account)) {
+            redisUtil.del(RedisKeyEnum.PREFIX_SHIRO_CACHE_AUTHENTICATIONCACHE + account);
         }
     }
 
+    /**
+     * 清除账户RefreshToken
+     * @param account 需要清除的账户
+     * @author : chunsiyang
+     * @date : 2019年01月10日 下午 07:39:51
+     */
     private void clearRefreshTokenInRedis(String account) {
-        if (RedisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account)) {
-            RedisUtil.del(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account);
+        if (redisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account)) {
+            redisUtil.del(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account);
         }
     }
 

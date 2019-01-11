@@ -6,8 +6,8 @@ import com.minecenter.exception.CustomException;
 import com.minecenter.model.common.RedisKeyEnum;
 import com.minecenter.model.common.ResponseBean;
 import com.minecenter.util.AuthorizationUtil;
+import com.minecenter.util.CacheUtil;
 import com.minecenter.util.JwtUtil;
-import com.minecenter.util.RedisUtil;
 import com.minecenter.util.common.JsonConvertUtil;
 import com.minecenter.util.common.PropertiesUtil;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
@@ -131,9 +131,9 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         // 获取当前Token的帐号信息
         String account = JwtUtil.getSubject(token);
         // 判断Redis中RefreshToken是否存在
-        if(RedisUtil.exists(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account)){
+        if (CacheUtil.exists(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account)) {
             // Redis中RefreshToken还存在，获取RefreshToken的时间戳
-            String currentTimeMillisRedis = RedisUtil.get(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account).toString();
+            String currentTimeMillisRedis = CacheUtil.get(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account).toString();
             // 获取当前AccessToken中的时间戳，与RefreshToken的时间戳对比，如果当前时间戳一致，进行AccessToken刷新
             if(JwtUtil.getIssuedAt(token).toString().equals(new Date(Long.valueOf(currentTimeMillisRedis)).toString())){
                 // 获取当前最新时间戳
@@ -142,7 +142,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
                 PropertiesUtil.readProperties("config.properties");
                 String refreshTokenExpireTime = PropertiesUtil.getProperty("refreshTokenExpireTime");
                 // 设置RefreshToken中的时间戳为当前最新时间戳，且刷新过期时间重新为30分钟过期(配置文件可配置refreshTokenExpireTime属性)
-                RedisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account, currentTimeMillis, Integer.parseInt(refreshTokenExpireTime));
+                CacheUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + account, currentTimeMillis, Integer.parseInt(refreshTokenExpireTime));
                 // 刷新AccessToken，设置时间戳为当前最新时间戳
                 token = JwtUtil.sign(account, currentTimeMillis,PropertiesUtil.getProperty("jwtIssuer"));
                 // 将新刷新的AccessToken再次进行Shiro的登录
@@ -151,7 +151,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
                 this.getSubject(request, response).login(jwtToken);
                 // 最后将刷新的AccessToken存放在Response的Header中的Authorization字段返回
                 HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-                httpServletResponse.setHeader("Authorization", token);
+                httpServletResponse.setHeader("Authorization", AuthorizationUtil.getBearerToken(token));
                 httpServletResponse.setHeader("Access-Control-Expose-Headers", "Authorization");
                 return true;
             }

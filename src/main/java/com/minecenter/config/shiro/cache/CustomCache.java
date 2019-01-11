@@ -1,8 +1,8 @@
 package com.minecenter.config.shiro.cache;
 
 import com.minecenter.model.common.RedisKeyEnum;
+import com.minecenter.util.CacheUtil;
 import com.minecenter.util.JwtUtil;
-import com.minecenter.util.RedisUtil;
 import com.minecenter.util.common.PropertiesUtil;
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
@@ -42,10 +42,10 @@ public class CustomCache<K,V> implements Cache<K,V> {
      */
     @Override
     public Object get(Object key) throws CacheException {
-        if(!RedisUtil.exists(this.getKey(key))){
+        if (!CacheUtil.exists(this.getKey(key))) {
             return null;
         }
-        return RedisUtil.get(this.getKey(key));
+        return CacheUtil.get(this.getKey(key));
     }
 
     /**
@@ -57,7 +57,7 @@ public class CustomCache<K,V> implements Cache<K,V> {
         PropertiesUtil.readProperties("config.properties");
         String shiroCacheExpireTime = PropertiesUtil.getProperty("shiroCacheExpireTime");
         // 设置Redis的Shiro缓存
-        return RedisUtil.set(this.getKey(key), value, Integer.parseInt(shiroCacheExpireTime));
+        return CacheUtil.set(this.getKey(key), value, Integer.parseInt(shiroCacheExpireTime));
     }
 
     /**
@@ -65,10 +65,10 @@ public class CustomCache<K,V> implements Cache<K,V> {
      */
     @Override
     public Object remove(Object key) throws CacheException {
-        if(!RedisUtil.exists(this.getKey(key))){
+        if (!CacheUtil.exists(this.getKey(key))) {
             return null;
         }
-        RedisUtil.del(this.getKey(key));
+        CacheUtil.del(this.getKey(key));
         return null;
     }
 
@@ -77,7 +77,7 @@ public class CustomCache<K,V> implements Cache<K,V> {
      */
     @Override
     public void clear() throws CacheException {
-        RedisUtil.removeAll();
+        CacheUtil.removeAll();
     }
 
     /**
@@ -85,7 +85,7 @@ public class CustomCache<K,V> implements Cache<K,V> {
      */
     @Override
     public int size() {
-        Long size = RedisUtil.dbSize();
+        Long size = CacheUtil.dbSize();
         return size.intValue();
     }
 
@@ -94,7 +94,7 @@ public class CustomCache<K,V> implements Cache<K,V> {
      */
     @Override
     public Set keys() {
-        return  RedisUtil.keys("*");
+        return CacheUtil.keys("*");
     }
 
     /**
@@ -105,7 +105,7 @@ public class CustomCache<K,V> implements Cache<K,V> {
         Set keys = this.keys();
         List<Object> values = new ArrayList<Object>();
         for (Object key : keys) {
-            values.add(RedisUtil.get(this.getKey(key)));
+            values.add(CacheUtil.get(this.getKey(key)));
         }
         return values;
     }

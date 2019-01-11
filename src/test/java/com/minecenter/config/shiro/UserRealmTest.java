@@ -8,6 +8,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.subject.Subject;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,10 +24,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 @PropertySource("classpath:config.properties")
 public class UserRealmTest {
 
+    private final String TEST_USER_ACCOUNT = "admin";
+
     private static String accessTokenExpireTime;
     private static String refreshTokenExpireTime;
     @Autowired
     private DefaultSecurityManager securityManager;
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Value("${accessTokenExpireTime}")
     public void setAccessTokenExpireTime(String accessTokenExpireTime) {
@@ -39,6 +44,18 @@ public class UserRealmTest {
     }
 
     /**
+     * 清除缓存
+     *
+     * @author : chunsiyang
+     * @date : 2019年01月10日 下午 07:50:22
+     */
+    @After
+    public void clearCache() {
+        redisUtil.removeAll();
+    }
+
+
+    /**
      * 当验证正确token时不抛出异常
      *
      * @author : chunsiyang
@@ -47,9 +64,9 @@ public class UserRealmTest {
     @Test
     public void shouldHaveNoErrWhenGiveRightToken() {
         Long timeMillis = System.currentTimeMillis();
-        String token = JwtUtil.sign("admin", timeMillis, "userRealmTest");
+        String token = JwtUtil.sign(TEST_USER_ACCOUNT, timeMillis, "userRealmTest");
         SecurityUtils.setSecurityManager(securityManager);
-        RedisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + "admin",
+        redisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + TEST_USER_ACCOUNT,
                 timeMillis, Integer.parseInt(refreshTokenExpireTime));
         Subject subject = SecurityUtils.getSubject();
         subject.login(new JwtToken(token));
@@ -63,7 +80,7 @@ public class UserRealmTest {
      */
     @Test
     public void shouldThrowAuthenticationExceptionWhenGiveTimeOutToken() {
-        String token = JwtUtil.sign("admin",
+        String token = JwtUtil.sign(TEST_USER_ACCOUNT,
                 System.currentTimeMillis() - Long.valueOf(UserRealmTest.accessTokenExpireTime) * 1000 - 100,
                 "userRealmTest");
         SecurityUtils.setSecurityManager(securityManager);

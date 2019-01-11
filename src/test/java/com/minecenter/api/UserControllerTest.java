@@ -1,14 +1,14 @@
 package com.minecenter.api;
 
 import com.minecenter.config.shiro.jwt.JwtToken;
-import com.minecenter.exception.CustomUnauthorizedException;
 import com.minecenter.model.common.RedisKeyEnum;
+import com.minecenter.util.AuthorizationUtil;
 import com.minecenter.util.JwtUtil;
 import com.minecenter.util.RedisUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.subject.Subject;
-import org.junit.Assert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +24,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.util.NestedServletException;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,14 +34,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @PropertySource("classpath:config.properties")
 public class UserControllerTest {
 
+    private final String TEST_USER_ACCOUNT = "admin";
+
     @Autowired
     private DefaultSecurityManager securityManager;
     @Autowired
     private WebApplicationContext context;
+    @Autowired
+    private RedisUtil redisUtil;
     private MockMvc mvc;
 
+
     @Value("${accessTokenExpireTime}")
-    private  String accessTokenExpireTime;
+    private String accessTokenExpireTime;
 
     @Before
     public void setUp() {
@@ -50,6 +54,18 @@ public class UserControllerTest {
         mvc = MockMvcBuilders.webAppContextSetup(context).build();  //构造MockMvc
         SecurityUtils.setSecurityManager(securityManager);
     }
+
+    /**
+     * 清除缓存
+     *
+     * @author : chunsiyang
+     * @date : 2019年01月10日 下午 07:50:22
+     */
+    @After
+    public void clearCache() {
+        redisUtil.removeAll();
+    }
+
 
     /**
      * 当提供正确用户名密码时返回200状态
@@ -74,20 +90,11 @@ public class UserControllerTest {
      */
     @Test
     public void shouldThrowNSEGiveLoginWithRightNameErrPasswd() throws Exception {
-        try {
-            mvc.perform(MockMvcRequestBuilders.post("/user/login")
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content("{\"account\":\"admin\",\"password\":\"123\"}")
-                    .accept(MediaType.APPLICATION_JSON))  //接收的类型
-                    .andExpect(status().isOk());
-            Assert.fail();
-        } catch (NestedServletException e) {
-            System.out.println(e.getMessage());
-            if (!(e.getCause() instanceof CustomUnauthorizedException)) {
-                Assert.fail();
-            }
-        }
-
+        mvc.perform(MockMvcRequestBuilders.post("/user/login")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content("{\"account\":\"admin\",\"password\":\"123\"}")
+                .accept(MediaType.APPLICATION_JSON))  //接收的类型
+                .andExpect(status().is4xxClientError());
     }
 
     /**
@@ -98,19 +105,11 @@ public class UserControllerTest {
      */
     @Test
     public void shouldThrowNSEWhenGiveLoginWithErrNamePasswd() throws Exception {
-        try {
-            mvc.perform(MockMvcRequestBuilders.post("/user/login")
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content("{\"account\":\"123\",\"password\":\"123\"}")
-                    .accept(MediaType.APPLICATION_JSON))  //接收的类型
-                    .andExpect(status().isOk());
-            Assert.fail();
-        } catch (NestedServletException e) {
-            System.out.println(e.getMessage());
-            if (!(e.getCause() instanceof CustomUnauthorizedException)) {
-                Assert.fail();
-            }
-        }
+        mvc.perform(MockMvcRequestBuilders.post("/user/login")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content("{\"account\":\"123\",\"password\":\"123\"}")
+                .accept(MediaType.APPLICATION_JSON))  //接收的类型
+                .andExpect(status().is4xxClientError());
     }
 
     /**
@@ -121,11 +120,11 @@ public class UserControllerTest {
      */
     @Test
     public void shouldReturnOkWhenLoginSuccess() throws Exception {
-        String token =logIn();
+        String token = logIn();
         mvc.perform(MockMvcRequestBuilders.get("/user/article")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .header("Authorization",token)
-                .header("Access-Control-Expose-Headers","Authorization"))
+                .header("Authorization", AuthorizationUtil.getBearerToken(token))
+                .header("Access-Control-Expose-Headers", "Authorization"))
                 .andExpect(status().isOk());
     }
 
@@ -138,11 +137,11 @@ public class UserControllerTest {
     @Test
     @Transactional
     public void shouldChangePasswordWhenSendPut() throws Exception {
-        String token =logIn();
+        String token = logIn();
         mvc.perform(MockMvcRequestBuilders.put("/user")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .header("Authorization",token)
-                .header("Access-Control-Expose-Headers","Authorization")
+                .header("Authorization", AuthorizationUtil.getBearerToken(token))
+                .header("Access-Control-Expose-Headers", "Authorization")
                 .content("{\"account\":\"admin\",\"password\":\"123\"}")
                 .accept(MediaType.APPLICATION_JSON))  //接收的类型
                 .andExpect(status().isOk());
@@ -151,15 +150,15 @@ public class UserControllerTest {
     /**
      * 通过向redis中写入数据模拟登录
      *
+     * @return : token
      * @author : chunsiyang
      * @date : 2018年12月25日 下午 03:42:35
-     * @return : token
      */
-    private String  logIn () {
+    private String logIn() {
         Long timeMillis = System.currentTimeMillis();
-        String token = JwtUtil.sign("admin", timeMillis, "userRealmTest");
+        String token = JwtUtil.sign(TEST_USER_ACCOUNT, timeMillis, "userRealmTest");
         SecurityUtils.setSecurityManager(securityManager);
-        RedisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + "admin",
+        redisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + TEST_USER_ACCOUNT,
                 timeMillis, Integer.parseInt(accessTokenExpireTime));
         Subject subject = SecurityUtils.getSubject();
         subject.login(new JwtToken(token));
