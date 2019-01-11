@@ -2,6 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.minecenter.mapper.PermissionMapper">
 
+    <resultMap id="BaseResultMap" type="com.minecenter.model.entry.Permission">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="per_code" jdbcType="VARCHAR" property="perCode" />
+    </resultMap>
+
     <select id="findPermissionByRole" resultType="com.minecenter.model.entry.Permission"
             parameterType="com.minecenter.model.entry.Role">
         SELECT
