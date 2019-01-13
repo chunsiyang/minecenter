@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-@Component
 public class RedisUtil {
 
     /**
@@ -22,46 +21,11 @@ public class RedisUtil {
      */
     private RedisTemplate<String, Object> redisTemplate;
 
-    /**
-     * redisTemplate 关闭事务
-     */
-    private RedisTemplate<String, Object> redisTemplateNoTransaction;
-
-    /**
-     * redisTemplate 开启事务
-     */
-    private RedisTemplate<String, Object> redisTemplateTransaction;
-
-    @Autowired
-    public RedisUtil(RedisTemplate<String, Object> redisTemplateNoTransaction,
-                     @Qualifier("redisTemplateTransaction")
-                             RedisTemplate<String, Object> redisTemplateTransaction) {
-        this.redisTemplate = redisTemplateNoTransaction;
-        this.redisTemplateNoTransaction = redisTemplateNoTransaction;
-        this.redisTemplateTransaction = redisTemplateTransaction;
+    public RedisUtil(RedisTemplate<String, Object> redisTemplate){
+        this.redisTemplate = redisTemplate;
     }
 
     //=============================common============================
-
-    /**
-     * 开启事务
-     *
-     * @author : chunsiyang
-     * @date : 2019年01月11日 上午 11:54:54
-     */
-    public void enableTransaction() {
-        this.redisTemplate = redisTemplateTransaction;
-    }
-
-    /**
-     * 关闭
-     *
-     * @author : chunsiyang
-     * @date : 2019年01月11日 上午 11:54:54
-     */
-    public void disableTransaction() {
-        this.redisTemplate = redisTemplateNoTransaction;
-    }
 
     /**
      * 清空数据库
