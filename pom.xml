@@ -112,16 +112,19 @@
             <groupId>org.mybatis.generator</groupId>
             <artifactId>mybatis-generator-core</artifactId>
             <version>1.3.6</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>tk.mybatis</groupId>
             <artifactId>mapper</artifactId>
             <version>4.0.0</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>tk.mybatis</groupId>
             <artifactId>mapper-generator</artifactId>
             <version>1.0.0</version>
+            <scope>runtime</scope>
         </dependency>
         <!-- alibaba fastjson -->
         <dependency>
@@ -133,6 +136,11 @@
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
             <version>RELEASE</version>
         </dependency>
         <!-- swagger-ui -->

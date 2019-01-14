@@ -10,7 +10,7 @@ spring:
       url: jdbc:mysql://yourIp/yourDataBase?useSSL=false&useUnicode=true&characterEncoding=UTF-8
       username: yourUserName
       password: yourPassWord
-      driver-class-name: com.mysql.jdbc.Driver
+      driver-class-name: com.mysql.cj.jdbc.Driver
       filters: stat
       max-active: 20
       initial-size: 1
