@@ -36,14 +36,15 @@ public class RedisUtil {
      * 本方法将释放当前Redis连接并重新获取连接
      * 用以解决redisTemplate存在的不能正确释放连接的问题
      *
+     * @param enableTransactionalSupport 是否开启事务
      * @author : chunsiyang
      * @date : 2019年01月15日 下午 04:48:09
      */
-    public void initConnection() {
+    public void initConnection(Boolean enableTransactionalSupport) {
         RedisConnectionFactory redisConnectionFactory = redisTemplate.getConnectionFactory();
         if (redisConnectionFactory != null) {
             RedisConnectionUtils.unbindConnection(redisConnectionFactory);
-            RedisConnectionUtils.bindConnection(redisConnectionFactory, true);
+            RedisConnectionUtils.bindConnection(redisConnectionFactory, enableTransactionalSupport);
         }
 
     }
@@ -55,7 +56,7 @@ public class RedisUtil {
      * @date : 2019年01月15日 下午 04:48:09
      */
     public void multi() {
-        initConnection();
+        initConnection(true);
         redisTemplate.multi();
     }
 

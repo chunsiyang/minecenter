@@ -118,7 +118,7 @@ public class UserControllerTest {
      */
     @Test
     public void shouldReturnOkWhenLoginSuccess() throws Exception {
-        String token = logIn();
+        String token = logIn(false);
         mvc.perform(MockMvcRequestBuilders.get("/user/article")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .header("Authorization", AuthorizationUtil.getBearerToken(token))
@@ -135,7 +135,7 @@ public class UserControllerTest {
     @Test
     @Transactional
     public void shouldChangePasswordWhenSendPut() throws Exception {
-        String token = logIn();
+        String token = logIn(true);
         mvc.perform(MockMvcRequestBuilders.put("/user")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .header("Authorization", AuthorizationUtil.getBearerToken(token))
@@ -152,7 +152,7 @@ public class UserControllerTest {
      * @author : chunsiyang
      * @date : 2018年12月25日 下午 03:42:35
      */
-    private String logIn() {
+    private String logIn(boolean isTransactional) {
         final String testUserAccount = "admin";
         Long timeMillis = System.currentTimeMillis();
         String token = JwtUtil.sign(testUserAccount, timeMillis, "userRealmTest");
@@ -160,6 +160,9 @@ public class UserControllerTest {
         redisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + testUserAccount,
                 timeMillis, Integer.parseInt(accessTokenExpireTime));
         Subject subject = SecurityUtils.getSubject();
+        if (isTransactional) {
+            redisUtil.exec();
+        }
         subject.login(new JwtToken(token));
         return token;
     }

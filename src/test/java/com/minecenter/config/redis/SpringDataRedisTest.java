@@ -28,7 +28,7 @@ public class SpringDataRedisTest {
     @Test
     @Transactional
     public void readonlyShouldSuccessWhenUseTransactional() {
-        redisUtil.initConnection();
+        redisUtil.initConnection(true);
         redisUtil.set("test", "testVal");
         Assert.assertNull(redisUtil.get("test"));
         Assert.assertEquals(new Long(0), redisUtil.dbSize());
