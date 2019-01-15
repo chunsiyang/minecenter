@@ -34,8 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @PropertySource("classpath:config.properties")
 public class UserControllerTest {
 
-    private final String TEST_USER_ACCOUNT = "admin";
-
     @Autowired
     private DefaultSecurityManager securityManager;
     @Autowired
@@ -155,10 +153,11 @@ public class UserControllerTest {
      * @date : 2018年12月25日 下午 03:42:35
      */
     private String logIn() {
+        final String testUserAccount = "admin";
         Long timeMillis = System.currentTimeMillis();
-        String token = JwtUtil.sign(TEST_USER_ACCOUNT, timeMillis, "userRealmTest");
+        String token = JwtUtil.sign(testUserAccount, timeMillis, "userRealmTest");
         SecurityUtils.setSecurityManager(securityManager);
-        redisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + TEST_USER_ACCOUNT,
+        redisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + testUserAccount,
                 timeMillis, Integer.parseInt(accessTokenExpireTime));
         Subject subject = SecurityUtils.getSubject();
         subject.login(new JwtToken(token));

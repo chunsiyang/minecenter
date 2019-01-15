@@ -2,8 +2,9 @@ package com.minecenter.util;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisConnectionUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class RedisUtil {
 
     /**
@@ -21,9 +23,77 @@ public class RedisUtil {
      */
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Autowired
     public RedisUtil(RedisTemplate<String, Object> redisTemplate){
         this.redisTemplate = redisTemplate;
     }
+
+    //=============================Transactional============================
+
+    /**
+     * 初始化连接
+     * 在使用Transactional注解进行声明式事务时调用
+     * 本方法将释放当前Redis连接并重新获取连接
+     * 用以解决redisTemplate存在的不能正确释放连接的问题
+     *
+     * @author : chunsiyang
+     * @date : 2019年01月15日 下午 04:48:09
+     */
+    public void initConnection() {
+        RedisConnectionFactory redisConnectionFactory = redisTemplate.getConnectionFactory();
+        if (redisConnectionFactory != null) {
+            RedisConnectionUtils.unbindConnection(redisConnectionFactory);
+            RedisConnectionUtils.bindConnection(redisConnectionFactory, true);
+        }
+
+    }
+
+    /**
+     * 开启事务（编程式事务）
+     *
+     * @author : chunsiyang
+     * @date : 2019年01月15日 下午 04:48:09
+     */
+    public void multi() {
+        initConnection();
+        redisTemplate.multi();
+    }
+
+    /**
+     * 事务提交（编程式事务）
+     *
+     * @author : chunsiyang
+     * @date : 2019年01月15日 下午 04:48:09
+     */
+    public void exec() {
+        redisTemplate.exec();
+        closeConnection();
+    }
+
+    /**
+     * 丢弃事务（编程式事务）
+     *
+     * @author : chunsiyang
+     * @date : 2019年01月15日 下午 04:48:09
+     */
+    public void discard() {
+        redisTemplate.discard();
+        closeConnection();
+    }
+
+    /**
+     * 关闭连接
+     *
+     * @author : chunsiyang
+     * @date : 2019年01月15日 下午 04:48:09
+     */
+    private void closeConnection() {
+        RedisConnectionFactory redisConnectionFactory = redisTemplate.getConnectionFactory();
+        if (redisConnectionFactory != null) {
+            RedisConnectionUtils.unbindConnection(redisConnectionFactory);
+        }
+    }
+
 
     //=============================common============================
 

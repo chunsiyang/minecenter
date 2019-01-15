@@ -47,24 +47,14 @@ public class SpringDataRedis {
     @Bean
     @Primary
     public RedisTemplate<String, Object> functionDomainRedisTemplate(LettuceConnectionFactory redisConnectionFactory) {
-        return getStringObjectRedisTemplate(redisConnectionFactory, false);
-    }
-
-    /**
-     * 实例化 RedisTemplate 对象,启用事务
-     *
-     * @return RedisTemplate<String ,   Object>
-     */
-    @Bean(name = "redisTemplateTransaction")
-    public RedisTemplate<String, Object> functionDomainRedisTemplateTransaction(LettuceConnectionFactory redisConnectionFactory) {
         return getStringObjectRedisTemplate(redisConnectionFactory, true);
     }
 
-    private RedisTemplate<String, Object> getStringObjectRedisTemplate(LettuceConnectionFactory redisConnectionFactory, boolean b) {
+    private RedisTemplate<String, Object> getStringObjectRedisTemplate(LettuceConnectionFactory redisConnectionFactory, boolean transactionSupport) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         // 开启事务
-        redisTemplate.setEnableTransactionSupport(b);
+        redisTemplate.setEnableTransactionSupport(true);
         // 指定序列化器
         jdkREdisSerializer(redisTemplate);
         return redisTemplate;
