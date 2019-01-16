@@ -44,6 +44,7 @@ public class RedisUtil {
         RedisConnectionFactory redisConnectionFactory = redisTemplate.getConnectionFactory();
         if (redisConnectionFactory != null) {
             RedisConnectionUtils.unbindConnection(redisConnectionFactory);
+            redisTemplate.setEnableTransactionSupport(enableTransactionalSupport);
             RedisConnectionUtils.bindConnection(redisConnectionFactory, enableTransactionalSupport);
         }
 
@@ -68,7 +69,7 @@ public class RedisUtil {
      */
     public void exec() {
         redisTemplate.exec();
-        closeConnection();
+        initConnection(false);
     }
 
     /**
@@ -79,22 +80,8 @@ public class RedisUtil {
      */
     public void discard() {
         redisTemplate.discard();
-        closeConnection();
+        initConnection(false);
     }
-
-    /**
-     * 关闭连接
-     *
-     * @author : chunsiyang
-     * @date : 2019年01月15日 下午 04:48:09
-     */
-    private void closeConnection() {
-        RedisConnectionFactory redisConnectionFactory = redisTemplate.getConnectionFactory();
-        if (redisConnectionFactory != null) {
-            RedisConnectionUtils.unbindConnection(redisConnectionFactory);
-        }
-    }
-
 
     //=============================common============================
 

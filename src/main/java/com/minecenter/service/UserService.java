@@ -1,5 +1,6 @@
 package com.minecenter.service;
 
+import com.minecenter.annotation.CustomTransactional;
 import com.minecenter.exception.CustomException;
 import com.minecenter.exception.CustomUnauthorizedException;
 import com.minecenter.mapper.UserMapper;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @PropertySource("classpath:config.properties")
@@ -83,7 +83,7 @@ public class UserService {
      * @author chunsiyang
      * @date 2018/12/22 16:21
      */
-    @Transactional(rollbackFor = Exception.class)
+    @CustomTransactional(rollbackFor = Exception.class)
     public void update(User user) {
         // 查询数据库密码
         User userTemp = new User();

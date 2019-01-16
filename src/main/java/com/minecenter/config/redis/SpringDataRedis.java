@@ -54,7 +54,7 @@ public class SpringDataRedis {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         // 开启事务
-        redisTemplate.setEnableTransactionSupport(true);
+        redisTemplate.setEnableTransactionSupport(false);
         // 指定序列化器
         jdkREdisSerializer(redisTemplate);
         return redisTemplate;

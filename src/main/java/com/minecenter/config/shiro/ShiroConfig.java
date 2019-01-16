@@ -53,8 +53,6 @@ public class ShiroConfig {
         defaultSessionStorageEvaluator.setSessionStorageEnabled(false);
         subjectDAO.setSessionStorageEvaluator(defaultSessionStorageEvaluator);
         manager.setSubjectDAO(subjectDAO);
-        // 设置自定义Cache缓存
-//        manager.setCacheManager(new CustomCacheManager());
         return manager;
     }
 

@@ -1,18 +1,18 @@
 package com.minecenter.api;
 
-import com.minecenter.config.shiro.jwt.JwtToken;
 import com.minecenter.model.common.RedisKeyEnum;
 import com.minecenter.util.AuthorizationUtil;
 import com.minecenter.util.JwtUtil;
 import com.minecenter.util.RedisUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
-import org.apache.shiro.subject.Subject;
+import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.PropertySource;
@@ -40,6 +40,9 @@ public class UserControllerTest {
     private WebApplicationContext context;
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    @Qualifier("shiroFilter")
+    private ShiroFilterFactoryBean shiroFilterFactoryBean;
     private MockMvc mvc;
 
 
@@ -49,7 +52,9 @@ public class UserControllerTest {
     @Before
     public void setUp() {
 
-        mvc = MockMvcBuilders.webAppContextSetup(context).build();  //构造MockMvc
+        mvc = MockMvcBuilders.webAppContextSetup(context)
+                .addFilter(shiroFilterFactoryBean.getFilters().get("jwt"), "/ *")
+                .build();  //构造MockMvc
         SecurityUtils.setSecurityManager(securityManager);
     }
 
@@ -75,6 +80,8 @@ public class UserControllerTest {
     public void shouldReturn200GiveLoginWithRightNamePasswd() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/user/login")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header("Origin", "")
+                .header("Access-Control-Request-Headers", "Authorization")
                 .content("{\"account\":\"admin\",\"password\":\"admin\"}")
                 .accept(MediaType.APPLICATION_JSON))  //接收的类型
                 .andExpect(status().isOk());
@@ -90,6 +97,8 @@ public class UserControllerTest {
     public void shouldThrowNSEGiveLoginWithRightNameErrPasswd() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/user/login")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header("Origin", "")
+                .header("Access-Control-Request-Headers", "Authorization")
                 .content("{\"account\":\"admin\",\"password\":\"123\"}")
                 .accept(MediaType.APPLICATION_JSON))  //接收的类型
                 .andExpect(status().is4xxClientError());
@@ -106,6 +115,8 @@ public class UserControllerTest {
         mvc.perform(MockMvcRequestBuilders.post("/user/login")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content("{\"account\":\"123\",\"password\":\"123\"}")
+                .header("Origin", "")
+                .header("Access-Control-Request-Headers", "Authorization")
                 .accept(MediaType.APPLICATION_JSON))  //接收的类型
                 .andExpect(status().is4xxClientError());
     }
@@ -118,11 +129,12 @@ public class UserControllerTest {
      */
     @Test
     public void shouldReturnOkWhenLoginSuccess() throws Exception {
-        String token = logIn(false);
+        String token = logIn();
         mvc.perform(MockMvcRequestBuilders.get("/user/article")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .header("Authorization", AuthorizationUtil.getBearerToken(token))
-                .header("Access-Control-Expose-Headers", "Authorization"))
+                .header("Origin", "")
+                .header("Access-Control-Request-Headers", "Authorization"))
                 .andExpect(status().isOk());
     }
 
@@ -135,16 +147,39 @@ public class UserControllerTest {
     @Test
     @Transactional
     public void shouldChangePasswordWhenSendPut() throws Exception {
-        String token = logIn(true);
+        String token = logIn();
         mvc.perform(MockMvcRequestBuilders.put("/user")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .header("Authorization", AuthorizationUtil.getBearerToken(token))
-                .header("Access-Control-Expose-Headers", "Authorization")
+                .header("Access-Control-Request-Headers", "Authorization")
+                .header("Origin", "")
                 .content("{\"account\":\"admin\",\"password\":\"123\"}")
                 .accept(MediaType.APPLICATION_JSON))  //接收的类型
                 .andExpect(status().isOk());
     }
 
+    /**
+     * 注销后不可访问
+     *
+     * @author : chunsiyang
+     * @date : 2018年12月25日 下午 06:27:59
+     */
+    @Test
+    public void shouldNotAccessWhenLogout() throws Exception {
+        String token = logIn();
+        mvc.perform(MockMvcRequestBuilders.get("/user/logout")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header("Authorization", AuthorizationUtil.getBearerToken(token))
+                .header("Access-Control-Request-Headers", "Authorization")
+                .header("Origin", ""))
+                .andExpect(status().isOk());
+        mvc.perform(MockMvcRequestBuilders.get("/user/article")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header("Authorization", AuthorizationUtil.getBearerToken(token))
+                .header("Access-Control-Request-Headers", "Authorization")
+                .header("Origin", ""))
+                .andExpect(status().is4xxClientError());
+    }
     /**
      * 通过向redis中写入数据模拟登录
      *
@@ -152,18 +187,15 @@ public class UserControllerTest {
      * @author : chunsiyang
      * @date : 2018年12月25日 下午 03:42:35
      */
-    private String logIn(boolean isTransactional) {
+    private String logIn() {
         final String testUserAccount = "admin";
         Long timeMillis = System.currentTimeMillis();
         String token = JwtUtil.sign(testUserAccount, timeMillis, "userRealmTest");
         SecurityUtils.setSecurityManager(securityManager);
         redisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + testUserAccount,
                 timeMillis, Integer.parseInt(accessTokenExpireTime));
-        Subject subject = SecurityUtils.getSubject();
-        if (isTransactional) {
-            redisUtil.exec();
-        }
-        subject.login(new JwtToken(token));
+//        Subject subject = SecurityUtils.getSubject();
+//        subject.login(new JwtToken(token));
         return token;
     }
 
