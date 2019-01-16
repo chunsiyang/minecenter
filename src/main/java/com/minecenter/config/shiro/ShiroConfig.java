@@ -76,7 +76,9 @@ public class ShiroConfig {
         // 自定义url规则
         Map<String, String> filterRuleMap = new HashMap<>(16);
         // 所有请求通过我们自己的JWTFilter
-        filterRuleMap.put("/**", "jwt");
+        //做用户认证，permissive参数的作用是当token无效时也允许请求访问，不会返回鉴权未通过的错误
+        filterRuleMap.put("/logout", "noSessionCreation,anon");
+        filterRuleMap.put("/**", "noSessionCreation,jwt");
         factoryBean.setFilterChainDefinitionMap(filterRuleMap);
         return factoryBean;
     }

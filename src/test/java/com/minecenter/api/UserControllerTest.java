@@ -55,7 +55,7 @@ public class UserControllerTest {
     public void setUp() {
 
         mvc = MockMvcBuilders.webAppContextSetup(context)
-                .addFilter(shiroFilterFactoryBean.getFilters().get("jwt"), "/ *")
+                .addFilter(shiroFilterFactoryBean.getFilters().get("jwt"), "/*")
                 .build();  //构造MockMvc
         SecurityUtils.setSecurityManager(securityManager);
     }

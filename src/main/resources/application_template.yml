@@ -44,4 +44,9 @@ mapper:
     not-empty: true
 
 logging:
-  level.com.mineserver.home.page.mapper: debug
+  level:
+    root: info
+    com.minecenter: debug
+    com.minecenter.mapper: debug
+    org.apache.shiro: error
+  file: log/minecenter.log

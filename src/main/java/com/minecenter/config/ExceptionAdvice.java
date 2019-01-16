@@ -3,11 +3,11 @@ package com.minecenter.config;
 import com.minecenter.exception.CustomException;
 import com.minecenter.exception.CustomUnauthorizedException;
 import com.minecenter.model.common.ResponseBean;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -33,7 +33,17 @@ public class ExceptionAdvice {
     /**
      * Logger
      */
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Log log = LogFactory.getLog(this.getClass());
+
+    /**
+     * 打印日志
+     *
+     * @param e 异常信息
+     */
+    private void printLog(Exception e) {
+        log.info(e.getMessage());
+        log.debug(e.getMessage(), e);
+    }
 
     /**
      * 捕捉所有Shiro异常
@@ -43,7 +53,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(ShiroException.class)
     public ResponseBean handle401(ShiroException e) {
-        logger.error(e.getMessage(),e);
+        printLog(e);
         return new ResponseBean(HttpStatus.UNAUTHORIZED.value(), "无权访问(Unauthorized):" + e.getMessage(), null);
     }
 
@@ -56,7 +66,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseBean handle401(UnauthorizedException e) {
-        logger.error(e.getMessage(),e);
+        printLog(e);
         return new ResponseBean(HttpStatus.UNAUTHORIZED.value(), "无权访问(Unauthorized):当前Subject没有此请求所需权限(" + e.getMessage() + ")", null);
     }
 
@@ -69,7 +79,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthenticatedException.class)
     public ResponseBean handle401(UnauthenticatedException e) {
-        logger.error(e.getMessage(),e);
+        printLog(e);
         return new ResponseBean(HttpStatus.UNAUTHORIZED.value(), "无权访问(Unauthorized):当前Subject是匿名Subject，请先登录(This subject is anonymous.)", null);
     }
 
@@ -80,7 +90,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(CustomUnauthorizedException.class)
     public ResponseBean handle401(CustomUnauthorizedException e) {
-        logger.error(e.getMessage(),e);
+        printLog(e);
         return new ResponseBean(HttpStatus.UNAUTHORIZED.value(), "无权访问(Unauthorized):" + e.getMessage(), null);
     }
 
@@ -93,7 +103,7 @@ public class ExceptionAdvice {
     public ResponseBean validException(MethodArgumentNotValidException e) {
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
         Map<String, Object> result = this.getValidError(fieldErrors);
-        logger.error(e.getMessage(),e);
+        printLog(e);
         return new ResponseBean(HttpStatus.BAD_REQUEST.value(), result.get("errorMsg").toString(), result.get("errorList"));
     }
 
@@ -104,7 +114,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(CustomException.class)
     public ResponseBean handle(CustomException e) {
-        logger.error(e.getMessage(),e);
+        printLog(e);
         return new ResponseBean(HttpStatus.BAD_REQUEST.value(), e.getMessage(), null);
     }
 
@@ -115,7 +125,7 @@ public class ExceptionAdvice {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseBean handle(NoHandlerFoundException e) {
-        logger.error(e.getMessage(),e);
+        printLog(e);
         return new ResponseBean(HttpStatus.NOT_FOUND.value(), e.getMessage(), null);
     }
 
@@ -127,8 +137,8 @@ public class ExceptionAdvice {
      */
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    public ResponseBean globalException(HttpServletRequest request, Throwable e) {
-        logger.error(e.getMessage(),e);
+    public ResponseBean globalException(HttpServletRequest request, Exception e) {
+        printLog(e);
         return new ResponseBean(this.getStatus(request).value(), e.toString() + ": " + e.getMessage(), null);
     }
 
@@ -150,9 +160,9 @@ public class ExceptionAdvice {
      * @param fieldErrors 错误字段
      * @return Map<String, Object>
      */
-    private Map<String, Object> getValidError(List<FieldError> fieldErrors){
-        Map<String, Object> result = new HashMap<String, Object>(16);
-        List<String> errorList = new ArrayList<String>();
+    private Map<String, Object> getValidError(List<FieldError> fieldErrors) {
+        Map<String, Object> result = new HashMap<>(16);
+        List<String> errorList = new ArrayList<>();
         StringBuffer errorMsg = new StringBuffer("校验异常(ValidException):");
         for (FieldError error : fieldErrors){
             errorList.add(error.getField() + "-" + error.getDefaultMessage());

@@ -24,6 +24,11 @@
 /nbdist/
 /.nb-gradle/
 
+### log ###
+/log/*
+
 ### application.yml ###
 /src/main/resources/application.yml
+
+### mybatis generator ###
 /src/main/resources/generator/generator.properties
