@@ -1,5 +1,6 @@
 package com.minecenter.api;
 
+import com.minecenter.config.shiro.jwt.JwtToken;
 import com.minecenter.model.common.RedisKeyEnum;
 import com.minecenter.util.AuthorizationUtil;
 import com.minecenter.util.JwtUtil;
@@ -7,6 +8,7 @@ import com.minecenter.util.RedisUtil;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.subject.Subject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -194,8 +196,8 @@ public class UserControllerTest {
         SecurityUtils.setSecurityManager(securityManager);
         redisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + testUserAccount,
                 timeMillis, Integer.parseInt(accessTokenExpireTime));
-//        Subject subject = SecurityUtils.getSubject();
-//        subject.login(new JwtToken(token));
+        Subject subject = SecurityUtils.getSubject();
+        subject.login(new JwtToken(token));
         return token;
     }
 

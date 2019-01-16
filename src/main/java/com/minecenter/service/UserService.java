@@ -1,6 +1,7 @@
 package com.minecenter.service;
 
 import com.minecenter.annotation.CustomTransactional;
+import com.minecenter.config.shiro.jwt.JwtToken;
 import com.minecenter.exception.CustomException;
 import com.minecenter.exception.CustomUnauthorizedException;
 import com.minecenter.mapper.UserMapper;
@@ -9,6 +10,8 @@ import com.minecenter.model.entry.User;
 import com.minecenter.util.AesCipherUtil;
 import com.minecenter.util.JwtUtil;
 import com.minecenter.util.RedisUtil;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -70,7 +73,10 @@ public class UserService {
             Long currentTimeMillis = System.currentTimeMillis();
             redisUtil.set(RedisKeyEnum.PREFIX_SHIRO_REFRESH_TOKEN + user.getAccount(), currentTimeMillis, Integer.parseInt(refreshTokenExpireTime));
             // 从Header中Authorization返回AccessToken，时间戳为当前时间戳
-            return JwtUtil.sign(user.getAccount(), currentTimeMillis, jwtIssuer);
+            String token = JwtUtil.sign(user.getAccount(), currentTimeMillis, jwtIssuer);
+            Subject subject = SecurityUtils.getSubject();
+            subject.login(new JwtToken(token));
+            return token;
         } else {
             throw new CustomUnauthorizedException("帐号或密码错误(Account or Password Error.)");
         }
@@ -118,6 +124,8 @@ public class UserService {
         String account = JwtUtil.getSubject(token);
         clearShiroCache(account);
         clearRefreshTokenInRedis(account);
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
     }
 
     /**
