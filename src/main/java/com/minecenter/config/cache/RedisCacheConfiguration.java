@@ -1,4 +1,4 @@
-package com.minecenter.config.Cache;
+package com.minecenter.config.cache;
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;
