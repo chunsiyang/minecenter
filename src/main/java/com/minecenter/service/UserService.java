@@ -14,7 +14,6 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
@@ -56,7 +55,6 @@ public class UserService {
      * @author chunsiyang
      * @date 2018/12/22 16:21
      */
-    @Cacheable(cacheNames = "login", key = "#user.account")
     public String login(User user) {
         // 查询数据库中的帐号信息
         User userTemp = new User();
