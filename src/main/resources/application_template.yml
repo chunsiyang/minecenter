@@ -28,6 +28,12 @@ spring:
     host: yourIp
     port: yourPort
     password: yourPasswd
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1800S
+      cache-null-values: true
+
 
 mybatis:
   mapper-locations: classpath:src/main/resources/mapping/*.xml
