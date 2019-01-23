@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.*;
@@ -21,23 +20,6 @@ public class SpringDataRedis {
     private int port;
     @Value("${spring.redis.password}")
     private String password;
-
-    /**
-     * 配置redis
-     *
-     * @return ettuceConnectionFactory
-     * @author chunsiyang
-     * @date 2018/12/15 10:57
-     */
-    @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
-        /* 基础信息配置 */
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName(host);
-        configuration.setPort(port);
-        configuration.setPassword(password);
-        return new LettuceConnectionFactory(configuration);
-    }
 
     /**
      * 实例化 RedisTemplate 对象
